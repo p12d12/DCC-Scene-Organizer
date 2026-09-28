@@ -1,8 +1,10 @@
 # DCC Scene Organizer
 
-A Blender Python tool for validating object naming conventions and organizing scene collections.
+Blender上のオブジェクト命名規則のチェックと、Collection整理を自動化するPythonツールです。
 
-DCC Scene Organizer was developed as a Technical Artist portfolio project to reduce repetitive scene-cleanup tasks and help maintain consistent naming and collection structures during 3D production.
+3D制作時に発生する反復的なシーン整理作業を削減し、一定のNaming Conventionを維持することを目的として制作しました。
+
+Technical Artistを志望する上で、単純なスクリプト作成だけではなく、実際にアーティストが使用することを想定した操作性・安全性・エラー処理まで含めて実装しています。
 
 ---
 
@@ -12,21 +14,21 @@ DCC Scene Organizer was developed as a Technical Artist portfolio project to red
 
 **Messy Scene → Fix All → Organized Scene**
 
-The tool scans the current scene, detects naming issues, automatically fixes supported problems, and organizes objects into predefined collections.
+`Fix All`を実行することで、命名規則の修正とCollection整理をまとめて行うことができます。
 
 ---
 
-## Overview
+## 概要
 
-During 3D production, scenes can quickly become difficult to manage because of:
+3D制作では、作業が進むにつれて以下のような問題が発生することがあります。
 
-- Inconsistent object naming
-- Blender default names such as `Cube.001`
-- Mixed object types across collections
-- Repetitive manual cleanup
-- Naming conflicts caused by duplicated objects
+- オブジェクト名のルールが統一されていない
+- `Cube.001`などBlenderのデフォルト名が残っている
+- Mesh / Camera / Lightが複数のCollectionに混在している
+- シーン整理を手作業で繰り返す必要がある
+- オブジェクト複製時に名前の重複管理が必要になる
 
-DCC Scene Organizer automates these cleanup tasks while providing both non-destructive and destructive collection-management options.
+DCC Scene Organizerでは、現在のSceneをScanし、命名規則に違反しているオブジェクトを検出・修正した上で、オブジェクトタイプごとにCollectionを整理します。
 
 ---
 
@@ -34,7 +36,7 @@ DCC Scene Organizer automates these cleanup tasks while providing both non-destr
 
 ### Before
 
-An example of an unorganized scene:
+整理前のScene例です。
 
 ![Before](screenshots/before.png)
 
@@ -47,11 +49,11 @@ Scene Collection
 └── Camera
 ```
 
-The tool detects objects that do not follow the naming convention and displays them as naming issues.
+Naming Conventionに一致していないオブジェクトを自動的に検出し、UI上にNaming Issueとして表示します。
 
 ### After
 
-After running **Fix All**:
+`Fix All`実行後：
 
 ![After](screenshots/after.png)
 
@@ -69,13 +71,13 @@ DCC_Organizer
 
 ---
 
-## Features
+## 主な機能
 
 ### Scene Scan
 
-Scans supported objects in the current Blender scene.
+現在のScene内から対応オブジェクトを取得します。
 
-Supported object types:
+対応しているObject Type：
 
 - Mesh
 - Camera
@@ -85,7 +87,7 @@ Supported object types:
 
 ### Naming Convention Validation
 
-Objects are validated according to predefined prefix rules.
+Object TypeごとにPrefixルールを設定しています。
 
 | Object Type | Prefix |
 | --- | --- |
@@ -93,7 +95,7 @@ Objects are validated according to predefined prefix rules.
 | Camera | `CAM_` |
 | Light | `LGT_` |
 
-Example:
+例：
 
 ```text
 Cube   → GEO_Cube
@@ -101,13 +103,13 @@ Camera → CAM_Camera
 Light  → LGT_Light
 ```
 
+Naming Conventionに一致していないオブジェクトはProblem Objectとして検出されます。
+
 ---
 
 ### Blender Suffix Cleanup
 
-Blender-generated suffixes such as `.001` are automatically detected.
-
-Example:
+Blenderでオブジェクトを複製した際に自動付与される`.001`形式のSuffixを検出し、独自の番号形式へ変換します。
 
 ```text
 GEO_Cube.001
@@ -119,9 +121,9 @@ GEO_Cube_01
 
 ### Name Collision Handling
 
-Before assigning a numbered name, the tool checks whether the target name already exists.
+リネームを行う前に、同じ名前がすでにScene内で使用されていないか確認します。
 
-For example, if these objects already exist:
+例えば以下の名前が存在している場合：
 
 ```text
 GEO_Cube_01
@@ -129,13 +131,13 @@ GEO_Cube_02
 GEO_Cube_03
 ```
 
-and a new object named:
+新しく：
 
 ```text
 Cube.001
 ```
 
-is processed, the tool finds the next available number:
+を処理すると、使用可能な次の番号を検索し：
 
 ```text
 Cube.001
@@ -143,13 +145,15 @@ Cube.001
 GEO_Cube_04
 ```
 
-This prevents duplicate naming conflicts.
+へ自動的に変更します。
+
+これにより名前の重複を防止します。
 
 ---
 
 ## Collection Organization
 
-Objects are organized under a dedicated root collection.
+Object Typeごとに、`DCC_Organizer`配下へ自動分類します。
 
 ```text
 DCC_Organizer
@@ -160,21 +164,21 @@ DCC_Organizer
 
 ### Add Link
 
-Keeps the object's existing collection links and also links the object to the appropriate `DCC_Organizer` collection.
+既存Collectionとのリンクを保持したまま、`DCC_Organizer`側にもオブジェクトを追加します。
 
-This provides a non-destructive workflow that preserves the artist's existing collection structure.
+既存のアーティスト作業構造を変更しない、Non-Destructiveな整理方法です。
 
 ### Move
 
-Removes previous collection links and moves the object into the appropriate `DCC_Organizer` collection.
+既存Collectionとのリンクを解除し、`DCC_Organizer`配下へオブジェクトを移動します。
 
-Because this operation modifies the existing scene structure, a confirmation dialog is displayed before execution.
+既存Scene構造を変更する操作のため、実行前にConfirmation Dialogを表示するようにしています。
 
 ---
 
 ## Fix All
 
-The **Fix All** operation combines the main cleanup processes into one action.
+`Fix All`では、主要なScene Cleanup処理を一度に実行できます。
 
 ```text
 Scene Scan
@@ -188,7 +192,7 @@ Name Collision Check
 Collection Organization
 ```
 
-This allows common scene-cleanup tasks to be performed with a single button.
+複数の整理作業を1つの操作で完了できるようにしました。
 
 ---
 
@@ -196,19 +200,21 @@ This allows common scene-cleanup tasks to be performed with a single button.
 
 ![DCC Scene Organizer UI](screenshots/ui.png)
 
-The sidebar UI provides:
+BlenderのSidebarから各機能を操作できます。
 
-- Scene object counts
-- Naming issue count
-- Problem object display
+UI上では以下の情報・機能を確認できます。
+
+- Mesh / Camera / Light数
+- Naming Issue数
+- Problem Object一覧
 - Scan Scene
 - Fix Names
-- Add Link / Move selection
+- Collection Mode選択
 - Organize Collections
 - Fix All
-- Last Result feedback
+- Last Result
 
-Example:
+例：
 
 ```text
 Scene Status
@@ -225,9 +231,9 @@ No naming issues found
 
 ## Problem Detection
 
-When naming problems are found, they are displayed directly in the UI.
+命名規則に問題がある場合、対象オブジェクトと原因をUI上に表示します。
 
-Example:
+例：
 
 ```text
 Problem Objects
@@ -236,15 +242,15 @@ Cube             Missing Prefix
 GEO_Cube.001     Blender Suffix
 ```
 
-This allows the user to identify problematic objects without checking the system console.
+System Consoleを開かなくても、問題のあるオブジェクトを確認できるようにしています。
 
 ---
 
 ## User Feedback
 
-The result of the most recent operation is stored and displayed in the tool panel.
+各処理を実行した後、最後の実行結果をUI上に保持します。
 
-Example:
+例：
 
 ```text
 Last Result
@@ -252,45 +258,45 @@ Last Result
 Fixed 2 naming issue(s)
 ```
 
-or:
+または：
 
 ```text
 Fixed 2 naming issue(s) and organized 5 object(s)
 ```
 
-Warnings are also displayed when an operation cannot be completed.
+対応オブジェクトが存在しない場合や処理に失敗した場合も、Warning / Errorを表示します。
 
 ---
 
 ## Safety Features
 
-The tool includes several safeguards for scene editing:
+実際の制作Sceneで使用することを想定し、以下の安全対策を実装しました。
 
-- Undo support
-- Confirmation dialog for Move operations
-- Non-destructive Add Link mode
-- Empty-scene handling
-- Name collision prevention
-- Duplicate collection prevention
-- Repeated execution stability
-- Runtime error handling
+- Undo対応
+- Move実行前のConfirmation Dialog
+- Non-DestructiveなAdd Link Mode
+- Empty Sceneへの対応
+- Name Collision Prevention
+- Collectionの重複生成防止
+- 繰り返し実行時の安定性
+- Runtime Error Handling
 
 ---
 
 ## Testing
 
-The tool was tested under several scene conditions.
+複数のScene状態を想定して動作検証を行いました。
 
 ### Test 01 — Clean Scene
 
-A scene that already follows the expected naming and collection rules.
+すでにNaming / Collectionルールに従って整理されているSceneでテストしました。
 
-Verified:
+確認項目：
 
-- No unnecessary naming changes
-- No duplicate collections
-- No duplicate links
-- No errors during repeated execution
+- 不要なリネームが発生しない
+- Collectionが重複生成されない
+- オブジェクトが重複リンクされない
+- Fix Allを繰り返し実行してもエラーが発生しない
 
 **Result: Passed**
 
@@ -298,7 +304,7 @@ Verified:
 
 ### Test 02 — Messy Naming
 
-Input:
+入力：
 
 ```text
 Cube
@@ -308,7 +314,7 @@ Light
 Camera
 ```
 
-Expected result:
+期待される結果：
 
 ```text
 GEO_Cube
@@ -324,7 +330,7 @@ CAM_Camera
 
 ### Test 03 — Number Collision
 
-Existing objects:
+既存オブジェクト：
 
 ```text
 GEO_Cube_01
@@ -332,13 +338,13 @@ GEO_Cube_02
 GEO_Cube_03
 ```
 
-New object:
+追加オブジェクト：
 
 ```text
 Cube.001
 ```
 
-Result:
+結果：
 
 ```text
 GEO_Cube_04
@@ -350,7 +356,7 @@ GEO_Cube_04
 
 ### Test 04 — Complex Collections
 
-Tested with existing custom collections such as:
+以下のような既存Collectionを用意してテストしました。
 
 ```text
 Character
@@ -358,11 +364,11 @@ Props
 TestCollection
 ```
 
-Verified:
+確認項目：
 
-- Add Link preserves existing collection links
-- Move removes previous collection links
-- Undo restores the previous scene state
+- Add Linkで既存Collectionリンクを維持
+- Moveで既存Collectionリンクを解除
+- Undoで処理前の状態へ復元
 
 **Result: Passed**
 
@@ -370,11 +376,13 @@ Verified:
 
 ### Test 05 — Empty Scene
 
-When no supported objects are found, the operation is safely cancelled.
+対応するオブジェクトが存在しない場合：
 
 ```text
 No supported objects found
 ```
+
+を表示し、安全に処理をキャンセルします。
 
 **Result: Passed**
 
@@ -382,35 +390,38 @@ No supported objects found
 
 ### Test 06 — Repeated Execution
 
-`Fix All` was executed repeatedly on an already organized scene.
+整理済みSceneに対して`Fix All`を複数回実行しました。
 
-Verified:
+確認項目：
 
-- No duplicate names
-- No duplicate collections
-- No duplicate links
-- No execution errors
-- Scene structure remains stable
-- Last Result updates correctly
+- 名前が重複しない
+- Collectionが重複生成されない
+- オブジェクトが重複リンクされない
+- エラーが発生しない
+- Scene構造が維持される
+- Last Resultが正常に更新される
 
 **Result: Passed**
 
 ---
 
-## Usage
+## 使用方法
 
-1. Open Blender.
-2. Open the **Scripting** workspace.
-3. Load `scene_organizer.py`.
-4. Click **Run Script**.
-5. Return to the 3D Viewport.
-6. Press `N` to open the sidebar.
-7. Open the **DCC Organizer** tab.
-8. Use the required operation:
-   - Scan Scene
-   - Fix Names
-   - Organize Collections
-   - Fix All
+1. Blenderを起動します。
+2. `Scripting` Workspaceを開きます。
+3. `scene_organizer.py`を読み込みます。
+4. `Run Script`を実行します。
+5. 3D Viewportに戻ります。
+6. `N`キーでSidebarを開きます。
+7. `DCC Organizer`タブを選択します。
+8. 必要な機能を実行します。
+
+主な操作：
+
+- `Scan Scene`
+- `Fix Names`
+- `Organize Collections`
+- `Fix All`
 
 ---
 
@@ -435,7 +446,7 @@ DCC-Scene-Organizer/
 
 ## Technical Structure
 
-The script is separated into several functional areas.
+スクリプト内部では、役割ごとに処理を分けています。
 
 ```text
 Scene Scan
@@ -453,41 +464,41 @@ Blender Operators
 UI Panel
 ```
 
-### Technologies
+### 使用技術
 
 - Python
 - Blender Python API (`bpy`)
-- Regular Expressions (`re`)
+- Regular Expression (`re`)
 
 ---
 
-## Development Goals
+## 制作を通して意識したこと
 
-This project was created not only to automate scene cleanup, but also to explore Technical Artist tool-development concepts such as:
+このプロジェクトでは単にScene Cleanupを自動化するだけではなく、Technical ArtistとしてのTool Developmentを意識し、以下の点を考慮しました。
 
-- Artist workflow automation
-- Naming convention management
-- Scene validation
-- Non-destructive workflows
-- Safe destructive operations
-- Undo support
-- Error handling
-- User feedback
-- Repeated-operation stability
-- Tool usability
+- Artist Workflowの自動化
+- Naming Conventionの管理
+- Scene Validation
+- Non-Destructive Workflow
+- Destructive Operationの安全対策
+- Undo対応
+- Error Handling
+- User Feedback
+- 繰り返し実行時の安定性
+- UI / Usability
 
-The main goal was to approach the project as a tool that could be safely used by an artist, rather than as a simple one-time automation script.
+一度だけ動作するスクリプトではなく、実際にアーティストが繰り返し使用することを想定したツール設計を目標としました。
 
 ---
 
 ## Future Improvements
 
-Possible future improvements include:
+今後の拡張候補：
 
-- Custom naming presets
-- User-defined prefix rules
-- Support for additional Blender object types
-- Batch validation
-- Exportable validation reports
-- Blender add-on packaging
-- 3ds Max version
+- Custom Naming Preset
+- ユーザー定義Prefix
+- 対応Object Typeの追加
+- Batch Validation
+- Validation Reportの出力
+- Blender Add-on化
+- 3ds Max版の制作
