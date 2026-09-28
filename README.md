@@ -26,22 +26,17 @@ DCC Scene Organizer scans the current Blender scene, detects naming issues, auto
 
 ### Before
 
-![Before]
-
-<img width="339" height="187" alt="before" src="https://github.com/user-attachments/assets/1ee664a7-7ee8-4d12-a01f-6ae767bf660c" />
+![Before](screenshots/before.png)
 
 ### After
 
-![After]
-<img width="325" height="234" alt="after" src="https://github.com/user-attachments/assets/ad12618b-d52b-489e-a452-48ad69de01eb" />
+![After](screenshots/after.png)
 
 ---
 
 ## Demo
 
-![DCC Scene Organizer Demo]
-<img width="700" height="623" alt="dcc_scene_organizer" src="https://github.com/user-attachments/assets/eb746c9b-1192-4d6b-9e86-4c67c6280877" />
-
+![DCC Scene Organizer Demo](screenshots/ui.png)
 
 Recommended demo flow:
 
@@ -178,8 +173,7 @@ This allows common scene-cleanup tasks to be performed with one button.
 
 ## Scene Status UI
 
-![DCC Scene Organizer UI]
-<img width="365" height="465" alt="ui" src="https://github.com/user-attachments/assets/8bf20314-008a-4632-8622-a29c0a24071d" />
+![DCC Scene Organizer UI](demo/dcc_scene_organizer.gif)
 
 The Blender sidebar displays the current scene status.
 
