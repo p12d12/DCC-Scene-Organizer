@@ -2,23 +2,31 @@
 
 A Blender Python tool for validating object naming conventions and organizing scene collections.
 
-DCC Scene Organizer was created to reduce repetitive scene-cleanup work and help maintain consistent naming and collection structures during 3D production.
+DCC Scene Organizer was developed as a Technical Artist portfolio project to reduce repetitive scene-cleanup tasks and help maintain consistent naming and collection structures during 3D production.
 
-> **Status:** MVP / Portfolio Project
+---
+
+## Demo
+
+![DCC Scene Organizer Demo](demo/dcc_scene_organizer.gif)
+
+**Messy Scene → Fix All → Organized Scene**
+
+The tool scans the current scene, detects naming issues, automatically fixes supported problems, and organizes objects into predefined collections.
 
 ---
 
 ## Overview
 
-In 3D production, scenes can quickly become difficult to manage due to:
+During 3D production, scenes can quickly become difficult to manage because of:
 
 - Inconsistent object naming
 - Blender default names such as `Cube.001`
-- Mixed object types in collections
+- Mixed object types across collections
 - Repetitive manual cleanup
-- Naming conflicts when duplicated objects are created
+- Naming conflicts caused by duplicated objects
 
-DCC Scene Organizer scans the current Blender scene, detects naming issues, automatically fixes supported problems, and organizes objects into predefined collections.
+DCC Scene Organizer automates these cleanup tasks while providing both non-destructive and destructive collection-management options.
 
 ---
 
@@ -26,21 +34,38 @@ DCC Scene Organizer scans the current Blender scene, detects naming issues, auto
 
 ### Before
 
+An example of an unorganized scene:
+
 ![Before](screenshots/before.png)
+
+```text
+Scene Collection
+├── Cube
+├── Cube.001
+├── Mesh
+├── Light
+└── Camera
+```
+
+The tool detects objects that do not follow the naming convention and displays them as naming issues.
 
 ### After
 
+After running **Fix All**:
+
 ![After](screenshots/after.png)
 
----
-
-## Demo
-
-![DCC Scene Organizer Demo](screenshots/ui.png)
-
-Recommended demo flow:
-
-**Messy Scene → Fix All → Organized Scene**
+```text
+DCC_Organizer
+├── Geometry
+│   ├── GEO_Cube
+│   ├── GEO_Cube_01
+│   └── GEO_Mesh
+├── Lights
+│   └── LGT_Light
+└── Cameras
+    └── CAM_Camera
+```
 
 ---
 
@@ -48,7 +73,7 @@ Recommended demo flow:
 
 ### Scene Scan
 
-Scans supported objects in the current scene.
+Scans supported objects in the current Blender scene.
 
 Supported object types:
 
@@ -56,16 +81,14 @@ Supported object types:
 - Camera
 - Light
 
-The tool also displays a Scene Status summary directly in the UI.
-
 ---
 
 ### Naming Convention Validation
 
-Objects are checked against predefined naming rules.
+Objects are validated according to predefined prefix rules.
 
 | Object Type | Prefix |
-|---|---|
+| --- | --- |
 | Mesh | `GEO_` |
 | Camera | `CAM_` |
 | Light | `LGT_` |
@@ -73,22 +96,18 @@ Objects are checked against predefined naming rules.
 Example:
 
 ```text
-Cube      → GEO_Cube
-Camera    → CAM_Camera
-Light     → LGT_Light
+Cube   → GEO_Cube
+Camera → CAM_Camera
+Light  → LGT_Light
 ```
 
 ---
 
 ### Blender Suffix Cleanup
 
-Blender-generated suffixes such as:
+Blender-generated suffixes such as `.001` are automatically detected.
 
-```text
-GEO_Cube.001
-```
-
-are detected and converted to a cleaner numbering format.
+Example:
 
 ```text
 GEO_Cube.001
@@ -100,9 +119,9 @@ GEO_Cube_01
 
 ### Name Collision Handling
 
-Before assigning a numbered name, the tool checks whether that name is already being used.
+Before assigning a numbered name, the tool checks whether the target name already exists.
 
-Example:
+For example, if these objects already exist:
 
 ```text
 GEO_Cube_01
@@ -110,7 +129,13 @@ GEO_Cube_02
 GEO_Cube_03
 ```
 
-If a new `Cube.001` is processed, the tool automatically searches for the next available number.
+and a new object named:
+
+```text
+Cube.001
+```
+
+is processed, the tool finds the next available number:
 
 ```text
 Cube.001
@@ -124,36 +149,32 @@ This prevents duplicate naming conflicts.
 
 ## Collection Organization
 
-Objects are automatically organized under a dedicated root collection.
+Objects are organized under a dedicated root collection.
 
 ```text
 DCC_Organizer
 ├── Geometry
-│   ├── GEO_Cube
-│   └── GEO_Character
 ├── Cameras
-│   └── CAM_Main
 └── Lights
-    └── LGT_Key
 ```
 
-### Add Link Mode
+### Add Link
 
 Keeps the object's existing collection links and also links the object to the appropriate `DCC_Organizer` collection.
 
-This provides a non-destructive organization option.
+This provides a non-destructive workflow that preserves the artist's existing collection structure.
 
-### Move Mode
+### Move
 
 Removes previous collection links and moves the object into the appropriate `DCC_Organizer` collection.
 
-Because this operation changes the existing scene structure, a confirmation dialog is displayed before execution.
+Because this operation modifies the existing scene structure, a confirmation dialog is displayed before execution.
 
 ---
 
 ## Fix All
 
-`Fix All` combines the main cleanup operations into a single action.
+The **Fix All** operation combines the main cleanup processes into one action.
 
 ```text
 Scene Scan
@@ -167,28 +188,46 @@ Name Collision Check
 Collection Organization
 ```
 
-This allows common scene-cleanup tasks to be performed with one button.
+This allows common scene-cleanup tasks to be performed with a single button.
 
 ---
 
-## Scene Status UI
+## User Interface
 
-![DCC Scene Organizer UI](demo/dcc_scene_organizer.gif)
+![DCC Scene Organizer UI](screenshots/ui.png)
 
-The Blender sidebar displays the current scene status.
+The sidebar UI provides:
+
+- Scene object counts
+- Naming issue count
+- Problem object display
+- Scan Scene
+- Fix Names
+- Add Link / Move selection
+- Organize Collections
+- Fix All
+- Last Result feedback
 
 Example:
 
 ```text
 Scene Status
 
-Meshes: 7
+Meshes: 3
 Cameras: 1
 Lights: 1
-Naming Issues: 2
+Naming Issues: 0
+
+No naming issues found
 ```
 
-Naming problems are also shown directly inside the panel.
+---
+
+## Problem Detection
+
+When naming problems are found, they are displayed directly in the UI.
+
+Example:
 
 ```text
 Problem Objects
@@ -197,19 +236,13 @@ Cube             Missing Prefix
 GEO_Cube.001     Blender Suffix
 ```
 
-When no naming problems are detected:
-
-```text
-No naming issues found
-```
-
-is displayed.
+This allows the user to identify problematic objects without checking the system console.
 
 ---
 
 ## User Feedback
 
-The tool provides execution feedback directly in the UI.
+The result of the most recent operation is stored and displayed in the tool panel.
 
 Example:
 
@@ -222,16 +255,16 @@ Fixed 2 naming issue(s)
 or:
 
 ```text
-Fixed 2 naming issue(s) and organized 9 object(s)
+Fixed 2 naming issue(s) and organized 5 object(s)
 ```
 
-Warnings and errors are also reported when an operation cannot be completed.
+Warnings are also displayed when an operation cannot be completed.
 
 ---
 
 ## Safety Features
 
-The tool includes several safeguards for scene editing.
+The tool includes several safeguards for scene editing:
 
 - Undo support
 - Confirmation dialog for Move operations
@@ -246,22 +279,26 @@ The tool includes several safeguards for scene editing.
 
 ## Testing
 
-The tool was tested using several scene conditions.
+The tool was tested under several scene conditions.
 
 ### Test 01 — Clean Scene
 
 A scene that already follows the expected naming and collection rules.
 
-Results:
+Verified:
 
-- No naming changes
+- No unnecessary naming changes
 - No duplicate collections
 - No duplicate links
 - No errors during repeated execution
 
+**Result: Passed**
+
+---
+
 ### Test 02 — Messy Naming
 
-Example input:
+Input:
 
 ```text
 Cube
@@ -281,7 +318,9 @@ LGT_Light
 CAM_Camera
 ```
 
-Result: Passed.
+**Result: Passed**
+
+---
 
 ### Test 03 — Number Collision
 
@@ -305,7 +344,9 @@ Result:
 GEO_Cube_04
 ```
 
-Result: Passed.
+**Result: Passed**
+
+---
 
 ### Test 04 — Complex Collections
 
@@ -320,24 +361,28 @@ TestCollection
 Verified:
 
 - Add Link preserves existing collection links
-- Move removes previous links
+- Move removes previous collection links
 - Undo restores the previous scene state
 
-Result: Passed.
+**Result: Passed**
+
+---
 
 ### Test 05 — Empty Scene
 
-When no supported objects are found, the tool safely cancels the operation and displays:
+When no supported objects are found, the operation is safely cancelled.
 
 ```text
 No supported objects found
 ```
 
-Result: Passed.
+**Result: Passed**
+
+---
 
 ### Test 06 — Repeated Execution
 
-`Fix All` was executed repeatedly on an already-organized scene.
+`Fix All` was executed repeatedly on an already organized scene.
 
 Verified:
 
@@ -346,8 +391,26 @@ Verified:
 - No duplicate links
 - No execution errors
 - Scene structure remains stable
+- Last Result updates correctly
 
-Result: Passed.
+**Result: Passed**
+
+---
+
+## Usage
+
+1. Open Blender.
+2. Open the **Scripting** workspace.
+3. Load `scene_organizer.py`.
+4. Click **Run Script**.
+5. Return to the 3D Viewport.
+6. Press `N` to open the sidebar.
+7. Open the **DCC Organizer** tab.
+8. Use the required operation:
+   - Scan Scene
+   - Fix Names
+   - Organize Collections
+   - Fix All
 
 ---
 
@@ -370,25 +433,9 @@ DCC-Scene-Organizer/
 
 ---
 
-## Usage
-
-1. Open Blender.
-2. Open the **Scripting** workspace.
-3. Load `scene_organizer.py`.
-4. Run the script.
-5. Open the 3D Viewport sidebar with `N`.
-6. Select the **DCC Organizer** tab.
-7. Use:
-   - `Scan Scene`
-   - `Fix Names`
-   - `Organize Collections`
-   - `Fix All`
-
----
-
 ## Technical Structure
 
-The tool is separated into several functional areas.
+The script is separated into several functional areas.
 
 ```text
 Scene Scan
@@ -420,13 +467,16 @@ This project was created not only to automate scene cleanup, but also to explore
 
 - Artist workflow automation
 - Naming convention management
-- Non-destructive workflows
 - Scene validation
+- Non-destructive workflows
+- Safe destructive operations
+- Undo support
 - Error handling
 - User feedback
-- Undo support
+- Repeated-operation stability
 - Tool usability
-- Repeated-operation safety
+
+The main goal was to approach the project as a tool that could be safely used by an artist, rather than as a simple one-time automation script.
 
 ---
 
@@ -436,8 +486,8 @@ Possible future improvements include:
 
 - Custom naming presets
 - User-defined prefix rules
-- Additional Blender object types
+- Support for additional Blender object types
 - Batch validation
-- Validation report export
-- Add-on packaging
+- Exportable validation reports
+- Blender add-on packaging
 - 3ds Max version
