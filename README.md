@@ -27,7 +27,7 @@ DCC Scene Organizer scans the current Blender scene, detects naming issues, auto
 ### Before
 
 ![Before]
-<img width="339" height="187" alt="before" src="https://github.com/user-attachments/assets/1ee664a7-7ee8-4d12-a01f-6ae767bf660c" />
+(<img width="339" height="187" alt="before" src="https://github.com/user-attachments/assets/1ee664a7-7ee8-4d12-a01f-6ae767bf660c" />)
 
 ### After
 
